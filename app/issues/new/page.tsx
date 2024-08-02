@@ -1,5 +1,4 @@
 'use client'
-import Loading from './loading';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import SimpleMDE from "react-simplemde-editor";
@@ -20,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from '@/components/ui/use-toast';
 import { useState } from 'react';
+import Spinner from '@/components/ui/Spinner';
 
 type TCreateIssue = z.infer<typeof createIssueSchema>
 
@@ -77,7 +77,7 @@ const NewIssuePage = () => {
               </FormItem>
             )}
           />
-          <Button disabled={loading} type='submit'>Create Issue {loading && <Loading />}</Button>
+          <Button disabled={loading} type='submit'>Create Issue {loading && <Spinner />}</Button>
       </form>
     </Form>
   )
