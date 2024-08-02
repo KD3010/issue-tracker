@@ -1,7 +1,19 @@
-import { z } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/prisma/db';
-import { createIssueSchema } from '@/lib/validation';
+import { createIssueSchema, IssueSchema } from '@/lib/validation';
+
+export async function GET(request: NextRequest) {
+    const allIssues = await prisma.issue.findMany();
+
+    const validation = IssueSchema.safeParse(allIssues)
+    if(!validation.success)
+        return NextResponse.json(validation.error.message, { status: 400 })
+
+    return NextResponse.json({
+        message: 'Succesfully fetched the issues',
+        allIssues
+    }, { status: 200 })
+}
 
 export async function POST(request: NextRequest) {
     const body = await request.json();

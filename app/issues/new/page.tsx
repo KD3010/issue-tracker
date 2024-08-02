@@ -24,7 +24,7 @@ import Spinner from '@/components/ui/Spinner';
 type TCreateIssue = z.infer<typeof createIssueSchema>
 
 const NewIssuePage = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
   const { toast } = useToast();
   const form = useForm<TCreateIssue>({
@@ -39,7 +39,7 @@ const NewIssuePage = () => {
         title: response.data.message,
         description: `New issue with title ${response.data.issue.title} has been created at ${Date.now()}`
       });
-      setTimeout(() => router.push('/api/issues'), 2000);
+      setTimeout(() => router.push('/issues'), 2000);
   }).catch(error => (
       toast({
         variant: 'destructive',
