@@ -14,32 +14,23 @@ import {
 } from "@/components/ui/card"
 import { z } from 'zod'
 import classNames from 'classnames'
-import { isUndefined } from 'util'
+import { fetchAllIssues } from '@/redux/issues'
+import { useAppDispatch, useAppSelector } from '@/lib/hooks'
 
 type TSingleIssue = z.infer<typeof singleIssueSchema>
 type TIssues = z.infer<typeof IssueSchema>
 
 const page = () => {
-  const [issues, setIssues] = useState<TIssues>([])
-  const [loading, setLoading] = useState<boolean>(false);
+  const { issueList } = useAppSelector(state => state.Issues);
+  const dispatch = useAppDispatch<any>();
 
   useEffect(() => {
-    const fetchIssues = async () => {
-      setLoading(true);
-      axios.get('/api/issues')
-      .then((response) => {
-          setIssues(response.data.allIssues)
-        }
-      ).catch(error => (
-        toast({
-          variant: 'destructive',
-          title: 'Uh Oh! looks like something went wrong',
-          description: 'Please contact your provider'
-        })
-      )).finally(() => setLoading(false));
-    }
-
-    fetchIssues();
+    dispatch(fetchAllIssues((message: string) => {
+      toast({
+        variant: 'destructive',
+        title: message
+      })
+    }))
   }, [])
 
   return (
@@ -48,7 +39,7 @@ const page = () => {
             <Link href={"/issues/new"}>Create New Issue</Link>
         </Button>
         <div className='flex flex-wrap gap-6'>
-          {issues.map((issue: TSingleIssue) => (
+          {Array.isArray(issueList) && issueList.map((issue: TSingleIssue) => (
             <Card key={issue.id} className='max-w-[250px] hover:scale-105 cursor-pointer transition-scale duration-200'>
             <CardHeader className='h-[6rem]'>
               <CardTitle>{issue.title}</CardTitle>
