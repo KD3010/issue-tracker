@@ -16,13 +16,14 @@ import { z } from 'zod'
 import classNames from 'classnames'
 import { fetchAllIssues } from '@/redux/issues'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
+import { useRouter } from 'next/navigation'
 
 type TSingleIssue = z.infer<typeof singleIssueSchema>
-type TIssues = z.infer<typeof IssueSchema>
 
 const page = () => {
   const { issueList } = useAppSelector(state => state.Issues);
   const dispatch = useAppDispatch<any>();
+  const router = useRouter()
 
   useEffect(() => {
     dispatch(fetchAllIssues((message: string) => {
@@ -33,14 +34,18 @@ const page = () => {
     }))
   }, [])
 
+  const handleClick = (id: number) => {
+    router.push(`/issues/${id}`)
+  }
+
   return (
     <div className='flex-row space-y-6'>
         <Button className='justify-self-end' asChild>
             <Link href={"/issues/new"}>Create New Issue</Link>
         </Button>
         <div className='flex flex-wrap gap-6'>
-          {Array.isArray(issueList) && issueList.map((issue: TSingleIssue) => (
-            <Card key={issue.id} className='max-w-[250px] hover:scale-105 cursor-pointer transition-scale duration-200'>
+          {Array.isArray(issueList) && issueList.map((issue: TSingleIssue, index: number) => (
+            <Card key={issue.id} className='max-w-[250px] hover:scale-105 transition-scale duration-200' onClick={() => handleClick(issue.id)}>
             <CardHeader className='h-[6rem]'>
               <CardTitle>{issue.title}</CardTitle>
             </CardHeader>

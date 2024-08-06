@@ -15,6 +15,11 @@ const initialState = {
 
 export const reducer = (state = initialState, action: PayloadAction) => {
     switch(action.type) {
+        case 'FETCH_SINGLE_ISSUE': 
+            return {
+                ...state,
+                issue: action.payload
+            }
         case 'FETCH_ALL_ISSUES':
             return {
                 ...state,
@@ -37,6 +42,13 @@ const fetchedIssuesListSuccesfully = (payload: TIssueList) => {
     }
 }
 
+const fetchedSingleIssue = (payload: TSingleIssue) => {
+    return {
+        type: 'FETCH_SINGLE_ISSUE',
+        payload
+    }
+}
+
 const fetchingIssues = (payload: boolean) => {
     return {
         type: 'ISSUE_LOADING',
@@ -53,4 +65,18 @@ export const fetchAllIssues = (errorCallback: Function) => (dispatch: AppDispatc
       ).catch(error => (
         errorCallback(error.message)
       )).finally(() => dispatch(fetchingIssues(false)));
+}
+
+export const fetchSingleIssue = (issueId: String, callbackFn: Function) => (dispatch: AppDispatch) => {
+    dispatch(fetchingIssues(true));
+    axios.get(`/api/issues/${issueId}`)
+    .then((response) => dispatch(fetchedSingleIssue(response.data.singleIssue)))
+    .catch((error) => callbackFn(error.message))
+    .finally(() => fetchingIssues(false));
+}
+
+export const deleteIssue = (issueId: Number, callbackFn: Function) => () => {
+    axios.delete(`/api/issues/${issueId}`)
+    .then(response => callbackFn && callbackFn(response.data.message))
+    .catch((error) => callbackFn && callbackFn(error.message));
 }
