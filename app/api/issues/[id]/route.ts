@@ -1,4 +1,4 @@
-import { singleIssueSchema } from "@/lib/validation";
+import { createIssueSchema, singleIssueSchema } from "@/lib/validation";
 import prisma from "@/prisma/db";
 import { NextRequest } from "next/server";
 
@@ -31,4 +31,21 @@ export async function DELETE(_: NextRequest, context: {params: {id: Number}}) {
     })
 
     return Response.json({message: `Issue with ID ${id} deleted succesfully`}, {status: 200})
+}
+
+export async function PUT(req: NextRequest, context: {params: {id: Number}}) {
+    const {params: { id }} = context;
+    const body = await req.json();
+
+    const validation = createIssueSchema.safeParse(body)
+
+    if(!validation.success)
+        return Response.json(validation?.error?.errors, {status: 400})
+
+    const updatedIssue = await prisma.issue.update({
+        where: {id: Number(id)},
+        data: {title: body?.title, description: body?.description}
+    })
+
+    return Response.json({message: 'Issue updated succesfully', issue: updatedIssue}, {status: 200})
 }

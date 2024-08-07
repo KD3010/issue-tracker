@@ -1,16 +1,15 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
 import { toast } from '@/components/ui/use-toast'
-import { singleIssueSchema, IssueSchema } from '@/lib/validation'
+import { singleIssueSchema } from '@/lib/validation'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card"
 import { z } from 'zod'
 import classNames from 'classnames'

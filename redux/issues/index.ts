@@ -3,6 +3,7 @@ import { PayloadAction, UnknownAction } from "@reduxjs/toolkit"
 import { IssueSchema, singleIssueSchema } from "@/lib/validation"
 import axios from "axios"
 import { z } from "zod"
+import { TCreateIssue } from "@/lib/types"
 
 type TSingleIssue = z.infer<typeof singleIssueSchema>
 type TIssueList = z.infer<typeof IssueSchema>
@@ -79,4 +80,12 @@ export const deleteIssue = (issueId: Number, callbackFn: Function) => () => {
     axios.delete(`/api/issues/${issueId}`)
     .then(response => callbackFn && callbackFn(response.data.message))
     .catch((error) => callbackFn && callbackFn(error.message));
+}
+
+export const updateIssue = (issueId: Number, data: TCreateIssue, callbackFn: Function) => (dispatch: AppDispatch) => {
+    dispatch(fetchingIssues(true))
+    axios.put(`/api/issues/${issueId}`, data)
+    .then((response) => callbackFn && callbackFn(response))
+    .catch(error => callbackFn && callbackFn(error))
+    .finally(() => fetchingIssues(false))
 }
