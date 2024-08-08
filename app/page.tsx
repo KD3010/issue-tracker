@@ -1,7 +1,9 @@
-import Image from 'next/image'
+import {DndContext} from '@dnd-kit/core';
 
 export default function Home() {
   return (
-    <div>Hello World!</div>
+    <DndContext>
+      
+    </DndContext>
   )
 }
