@@ -1,7 +1,5 @@
 'use client'
-import React, { useEffect } from 'react'
-import { Button } from "@/components/ui/button"
-import Link from 'next/link'
+import React, { Suspense, useEffect } from 'react'
 import { toast } from '@/components/ui/use-toast'
 import { singleIssueSchema } from '@/lib/validation'
 import {
@@ -16,6 +14,7 @@ import classNames from 'classnames'
 import { fetchAllIssues } from '@/redux/issues'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
 import { useRouter } from 'next/navigation'
+import Loading from '@/components/Loading/Loading'
 
 type TSingleIssue = z.infer<typeof singleIssueSchema>
 
@@ -38,10 +37,8 @@ const page = () => {
   }
 
   return (
-    <div className='flex-row space-y-6'>
-        <Button className='justify-self-end' asChild>
-            <Link href={"/issues/new"}>Create New Issue</Link>
-        </Button>
+    <Suspense fallback={<Loading />}>
+      <div className='flex-row space-y-6'>
         <div className='flex flex-wrap gap-6'>
           {Array.isArray(issueList) && issueList.map((issue: TSingleIssue, index: number) => (
             <Card key={issue.id} className='max-w-[250px] hover:scale-105 transition-scale duration-200' onClick={() => handleClick(issue.id)}>
@@ -61,6 +58,7 @@ const page = () => {
           ))}
         </div>
     </div>
+    </Suspense>
   )
 }
 

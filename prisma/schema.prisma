@@ -21,6 +21,8 @@ model Issue {
   statuses    Status   @default(OPEN)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  authorId    String   @db.Text
+  author      String   @db.Text
 }
 
 enum Status {

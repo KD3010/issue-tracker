@@ -1,9 +1,7 @@
-import {DndContext} from '@dnd-kit/core';
+import DND from '@/components/DragAndDrop/DND';
 
 export default function Home() {
   return (
-    <DndContext>
-      
-    </DndContext>
+    <DND />
   )
 }

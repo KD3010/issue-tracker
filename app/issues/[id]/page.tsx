@@ -1,7 +1,7 @@
 'use client'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { deleteIssue, fetchSingleIssue, updateIssue } from '@/redux/issues';
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import classNames from 'classnames'
 import { MdEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
@@ -23,6 +23,7 @@ import { useForm } from 'react-hook-form';
 import { TCreateIssue } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createIssueSchema } from '@/lib/validation';
+import { Skeleton } from "@/components/ui/skeleton"
 
 const Page = ({params}: {params : {id: String}}) => {
   const { issue }: {issue: any} = useAppSelector(state => state.Issues);
@@ -98,7 +99,8 @@ const Page = ({params}: {params : {id: String}}) => {
   }
 
   return (
-    <div className='space-y-4'>
+    <Suspense fallback={<IssueSkeleton />}>
+      <div className='space-y-4'>
       <h1><b>Title</b> <p>{issue.title}</p></h1>
       <article><b>Description</b> <p>{issue.description}</p></article>
       <p><b>Status</b> : <span className={classNames({
@@ -124,6 +126,20 @@ const Page = ({params}: {params : {id: String}}) => {
         
       </div>
       <ToastContainer stacked />
+    </div>
+    </Suspense>
+  )
+}
+
+const IssueSkeleton = () => {
+  return (
+    <div className='flex flex-col space-y-4'>
+      <Skeleton className='w-[100%] rounded-md' />
+      <Skeleton className='w-[80%] rounded-md' />
+      <Skeleton className='w-[100%] rounded-md' />
+      <Skeleton className='w-[80%] rounded-md' />
+      <Skeleton className='w-[100%] rounded-md' />
+      <Skeleton className='w-[80%] rounded-md' />
     </div>
   )
 }
