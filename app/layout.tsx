@@ -3,6 +3,13 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import NavBar from './NavBar'
 import StoreProvider from './StoreProvider'
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+} from '@clerk/nextjs'
+import { Button } from '@/components/ui/button'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,13 +24,27 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <ClerkProvider>
+      <html lang="en">
       <body className={inter.className}>
-        <StoreProvider>
-          <NavBar />
-          <main  className='p-6'>{children}</main>
-        </StoreProvider>
+        
+        <SignedOut>
+        <div className='w-[100vw] h-[100vh] flex flex-col space-y-3 items-center justify-center'>
+          <h3 className='font-bold text-3xl'>Welcome! to Issue Tracker</h3>
+          <p className='text-gray-500 w-[600px] text-center'>Streamline your project management with our intuitive tool, designed for seamless collaboration, task tracking, and agile workflow efficiency. Achieve more, faster, with everything in one place</p>
+          <Button><SignInButton/></Button>
+        </div>
+        </SignedOut>
+        
+        <SignedIn>
+          <StoreProvider>
+            <NavBar />
+            <main  className='p-6'>{children}</main>
+          </StoreProvider>
+        </SignedIn>
+        
       </body>
-    </html>
+      </html>
+    </ClerkProvider>
   )
 }
