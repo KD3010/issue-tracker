@@ -1,10 +1,11 @@
 version: '3.8'
 services:
   issue-tracker-dev:
-    build: .
+    build: 
+      args:
+        - NODE_ENV=dev
+      context: .
     image: 'node:22.1'
-    args:
-      - NODE_ENV=dev
     ports:
       - 3000:3000
     container_name: 'IT-DEV'
@@ -14,10 +15,11 @@ services:
       - .env
 
   issue-tracker-prod:
-    build: .
+    build: 
+      args:
+        - NODE_ENV=prod
+      context: .
     image: 'node:22.1'
-    args:
-      - NODE_ENV=prod
     ports:
       - 3000:5000
     container_name: 'IT-PROD'
