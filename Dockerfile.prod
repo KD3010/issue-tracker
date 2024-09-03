@@ -1,16 +1,18 @@
 FROM node:22.1.0
 
-WORKDIR /nextapp
+WORKDIR /next
 
 COPY package* .
 COPY /prisma .
 
 RUN npm install
 RUN npx prisma generate
-RUN npx prisma migrate
+RUN npx prisma migrate dev
 
 COPY . .
 
-EXPOSE 3000
+RUN ./next/npm build
 
-CMD ["npm", "run", "dev"]
+EXPOSE 500
+
+CMD ["./next/npm", "start"]
