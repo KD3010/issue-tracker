@@ -18,7 +18,7 @@ import Loading from '@/components/Loading/Loading'
 
 type TSingleIssue = z.infer<typeof singleIssueSchema>
 
-const page = () => {
+const Page = () => {
   const { issueList } = useAppSelector(state => state.Issues);
   const dispatch = useAppDispatch<any>();
   const router = useRouter()
@@ -62,4 +62,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

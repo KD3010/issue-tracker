@@ -42,7 +42,7 @@ const Page = ({params}: {params : {id: String}}) => {
     dispatch(fetchSingleIssue(params.id, (message: string) => {
       toast.error(message);
     }))
-  }, [isEdit])
+  }, [isEdit, dispatch, params.id])
 
   const handleDeleteClick = () => {
     dispatch(deleteIssue(issue.id, (message: string) => {

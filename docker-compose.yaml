@@ -8,22 +8,22 @@ services:
       dockerfile: Dockerfile.dev
     image: 'it-dev'
     ports:
-      - 3030:3000
+      - 3000:3000
     container_name: 'IT-DEV'
     volumes:
       - ./app:/next/app
     env_file:
       - .env
 
-  issue-tracker-prod:
-    build: 
-      args:
-        - NODE_ENV=prod
-      context: .
-      dockerfile: Dockerfile.prod
-    image: 'it-prod'
-    ports:
-      - 3000:5000
-    container_name: 'IT-PROD'
-    env_file:
-      - .env
+  # issue-tracker-prod:
+  #   build: 
+  #     args:
+  #       - NODE_ENV=prod
+  #     context: .
+  #     dockerfile: Dockerfile.prod
+  #   image: 'it-prod'
+  #   ports:
+  #     - 5000:5000
+  #   container_name: 'IT-PROD'
+  #   env_file:
+  #     - .env

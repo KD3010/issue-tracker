@@ -8,13 +8,14 @@ import { TCreateIssue } from "@/lib/types"
 type TSingleIssue = z.infer<typeof singleIssueSchema>
 type TIssueList = z.infer<typeof IssueSchema>
 
+
 const initialState = {
-    issueList: [],
-    issue: {},
-    issueLoading: false,
+    issueList: <any>[],
+    issue: <any>{},
+    issueLoading: <any>false,
 }
 
-export const reducer = (state = initialState, action: PayloadAction) => {
+export const reducer = (state = initialState, action: any) => {
     switch(action.type) {
         case 'FETCH_SINGLE_ISSUE': 
             return {
