@@ -5,7 +5,7 @@ import React, { Suspense, useEffect, useState } from 'react';
 import classNames from 'classnames'
 import { MdEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Input } from '@/components/ui/input';
@@ -25,7 +25,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createIssueSchema } from '@/lib/validation';
 import { Skeleton } from "@/components/ui/skeleton"
 
-const Page = ({params}: {params : {id: String}}) => {
+const Page = () => {
   const { issue }: {issue: any} = useAppSelector(state => state.Issues);
   const form = useForm<TCreateIssue>({
     resolver: zodResolver(createIssueSchema)
@@ -34,6 +34,8 @@ const Page = ({params}: {params : {id: String}}) => {
     title: issue.title,
     description: issue.description
   })
+  const params = useParams<{id: string}>();
+  
   const [isEdit, setIsEdit] = useState(false);
   const dispatch = useAppDispatch<any>();
   const router = useRouter()

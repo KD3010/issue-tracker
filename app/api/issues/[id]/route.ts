@@ -1,9 +1,8 @@
 import { createIssueSchema, singleIssueSchema } from "@/lib/validation";
 import prisma from "@/prisma/db";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(_: NextRequest, context: {params: {id: Number}}) {
-    console.log(context);
     
     const {params : { id }} = context;
     
@@ -16,9 +15,9 @@ export async function GET(_: NextRequest, context: {params: {id: Number}}) {
     const validation = singleIssueSchema.safeParse(singleIssue);
 
     if(!validation.success)
-        return Response.json(validation.error.errors, {status: 400});
+        return NextResponse.json(validation.error.errors, {status: 400});
 
-    return Response.json({message: `Issue with id ${id} fetched succesfully`, singleIssue}, {status: 200})
+    return NextResponse.json({message: `Issue with id ${id} fetched succesfully`, singleIssue}, {status: 200})
 }
 
 export async function DELETE(_: NextRequest, context: {params: {id: Number}}) {
@@ -30,7 +29,7 @@ export async function DELETE(_: NextRequest, context: {params: {id: Number}}) {
         }
     })
 
-    return Response.json({message: `Issue with ID ${id} deleted succesfully`}, {status: 200})
+    return NextResponse.json({message: `Issue with ID ${id} deleted succesfully`}, {status: 200})
 }
 
 export async function PUT(req: NextRequest, context: {params: {id: Number}}) {
@@ -40,12 +39,12 @@ export async function PUT(req: NextRequest, context: {params: {id: Number}}) {
     const validation = createIssueSchema.safeParse(body)
 
     if(!validation.success)
-        return Response.json(validation?.error?.errors, {status: 400})
+        return NextResponse.json(validation?.error?.errors, {status: 400})
 
     const updatedIssue = await prisma.issue.update({
         where: {id: Number(id)},
         data: {title: body?.title, description: body?.description}
     })
 
-    return Response.json({message: 'Issue updated succesfully', issue: updatedIssue}, {status: 200})
+    return NextResponse.json({message: 'Issue updated succesfully', issue: updatedIssue}, {status: 200})
 }
