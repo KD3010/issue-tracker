@@ -19,13 +19,13 @@ const NavBar = () => {
           <h1><AiFillBug /></h1>
           <ul className='flex items-center space-x-6'> 
             {links.map((link) => 
-              <Link key={link.href} className={classNames({
+              <Link prefetch={false} key={link.href} className={classNames({
                 'text-zinc-500 hover:text-zinc-800 translate-color': true,
                 'underline': link.href === pathname,
               })} href={link.href}>{link.label}
             </Link>)}
             <Button className='px-4 py-1' asChild>
-              <Link href={"/issues/new"}>Create New Issue</Link>
+              <Link prefetch={false} href={"/issues/new"}>Create New Issue</Link>
             </Button>
           </ul>
         </div>
