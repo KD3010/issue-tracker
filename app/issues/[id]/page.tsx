@@ -103,7 +103,7 @@ const Page = () => {
   return (
     <Suspense fallback={<IssueSkeleton />}>
       <div className='space-y-4'>
-      <h1><b>Title</b> <p>{issue.title}</p></h1>
+      <h1><span className='text-blue-500 font-bold'>{`Issue-${issue.id}`}</span> <p>{issue.title}</p></h1>
       <article><b>Description</b> <p>{issue.description}</p></article>
       <p><b>Status</b> : <span className={classNames({
                 'text-red-700': issue.statuses === 'OPEN',

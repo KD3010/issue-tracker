@@ -6,7 +6,7 @@ interface TDroppableProps {
     id: string
 }
 
-const Droppable = (props: TDroppableProps) => {
+const DropContainer = (props: TDroppableProps) => {
   const {isOver, setNodeRef} = useDroppable({
     id: props.id
   })
@@ -20,4 +20,4 @@ const Droppable = (props: TDroppableProps) => {
   )
 }
 
-export default Droppable
+export default DropContainer
