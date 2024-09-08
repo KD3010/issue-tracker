@@ -40,10 +40,10 @@ export async function PUT(req: NextRequest, context: {params: {id: Number}}) {
 
     if(!validation.success)
         return NextResponse.json(validation?.error?.errors, {status: 400})
-
+    
     const updatedIssue = await prisma.issue.update({
         where: {id: Number(id)},
-        data: {title: body?.title, description: body?.description}
+        data: body
     })
 
     return NextResponse.json({message: 'Issue updated succesfully', issue: updatedIssue}, {status: 200})

@@ -7,6 +7,12 @@ export const createIssueSchema = z.object({
 
 export const statusEnum = z.enum(["OPEN", "IN_PROGRESS", "CLOSED"])
 
+export const updateIssueSchema = z.object({
+    title: z.string({message: 'There must be a title for the issue'}).min(1).max(255).optional(),
+    description: z.string().min(1, {message: 'There must be a short description for the issue'}).optional(),
+    statuses: statusEnum.optional()
+})
+
 export const singleIssueSchema = z.object({
     id: z.number(),
     title: z.string({message: 'There must be a title for the issue'}).min(1).max(255),

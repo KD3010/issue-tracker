@@ -1,35 +1,55 @@
 "use client"
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
-import { DndContext, DragOverlay, DragStartEvent } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core'
 import React, { useEffect, useState } from 'react'
 import DropContainer from '../Droppable/DropContainer'
-import { fetchAllIssues } from '@/redux/issues'
-import { UnknownAction } from '@reduxjs/toolkit'
+import { fetchAllIssues, updateIssue } from '@/redux/issues'
 import { toast, ToastContainer } from 'react-toastify'
 import DragItem from '../Draggable/DragItem'
 import { TSingleIssue } from '@/lib/types'
+import Loading from '../Loading/Loading'
 
 const DND = () => {
-  const {issueList} = useAppSelector(state => state.Issues);
+  const { issueList, issueLoading } = useAppSelector(state => state.Issues);
   const dispatch = useAppDispatch<any>();
-  const containers = ["OPEN", " IN_PROGRESS", "CLOSED"];
+  const containers = ["OPEN", "IN_PROGRESS", "CLOSED"];
   const [activeItem, setActiveItem] = useState<any>(null)
+  const [parent, setParent] = useState<any>()
 
   useEffect(() => {
     dispatch(fetchAllIssues((message: string) => {
-      toast.error(message)
+      message && toast.error(message);
     }))
-  }, [dispatch])
+  }, [parent])
 
-  const handleDragEnd = () => {}
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { over, active } = event;
+    setParent(over?.id)
+    //if dropped over same container
+    if(over?.id.toString() === active?.data?.current?.statuses) {
+      return;
+    } else {
+      const updatedIssueData = {
+        title: active?.data?.current?.title,
+        description: active?.data?.current?.description,
+        statuses: over?.id.toString().trim()
+      }
+
+      dispatch(updateIssue(Number(active?.id), updatedIssueData, () => {
+        setParent('')
+      }))
+    }
+  }
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveItem(event.active.data.current)
   }
-  const handleDragMove = () => {}
 
   return (
     <>
+    {issueLoading && <div className='absolute rounded-md w-[97%] h-[85vh] z-10 bg-black bg-opacity-40 flex justify-center items-center'>
+      <Loading />
+    </div>}
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className='flex w-[100%] justify-between min-h-[85vh]'>
       {containers.map((containerId) => (
@@ -38,6 +58,10 @@ const DND = () => {
           {issueList.map((issue: TSingleIssue) => (issue.statuses === containerId && <DragItem id={issue.id.toString()} issue={issue}>
             <DragItemContent issue={issue} />
           </DragItem>))}
+
+          {parent === containerId && <DragItem id={activeItem.id} issue={activeItem}>
+            <DragItemContent issue={activeItem} />  
+          </DragItem>}
         </DropContainer>
       ))}
       </div>
@@ -57,10 +81,10 @@ const DragItemContent = ({issue}: {
   issue: TSingleIssue
 }) => {
   return (
-    <div className='h-[60px]'>
+    <div className='h-[84px]'>
       <h1 className='text-lg font-bold'>
         <span className='text-blue-500'>{`Issue-${issue.id}`}</span> : {issue.title}
-        </h1>
+      </h1>
       <p>{issue.description.substring(0, 50) + "..."}</p>
     </div>
   )

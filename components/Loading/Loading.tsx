@@ -5,9 +5,10 @@ const Loading = () => {
   return ( <Oval
     visible={true}
     height="80"
-    width="80"
+    width="120"
     color="#000000"
     ariaLabel="loading"
+    secondaryColor="#ffffff"
   />)
 }
 

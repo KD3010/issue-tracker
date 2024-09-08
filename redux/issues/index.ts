@@ -58,14 +58,15 @@ const fetchingIssues = (payload: boolean) => {
     }
 }
 
-export const fetchAllIssues = (errorCallback: Function) => (dispatch: AppDispatch, getState: RootState) => {
+export const fetchAllIssues = (callbackFn: Function) => (dispatch: AppDispatch, getState: RootState) => {
     dispatch(fetchingIssues(true));
     axios.get('/api/issues')
       .then((response) => {
           dispatch(fetchedIssuesListSuccesfully(response.data.allIssues || []))
+          callbackFn && callbackFn()
         }
       ).catch(error => (
-        errorCallback(error.message)
+        callbackFn(error.message)
       )).finally(() => dispatch(fetchingIssues(false)));
 }
 
@@ -74,7 +75,7 @@ export const fetchSingleIssue = (issueId: String, callbackFn: Function) => (disp
     axios.get(`/api/issues/${issueId}`)
     .then((response) => dispatch(fetchedSingleIssue(response.data.singleIssue)))
     .catch((error) => callbackFn(error.message))
-    .finally(() => fetchingIssues(false));
+    .finally(() => dispatch(fetchingIssues(false)));
 }
 
 export const deleteIssue = (issueId: Number, callbackFn: Function) => () => {
@@ -88,5 +89,5 @@ export const updateIssue = (issueId: Number, data: TCreateIssue, callbackFn: Fun
     axios.put(`/api/issues/${issueId}`, data)
     .then((response) => callbackFn && callbackFn(response))
     .catch(error => callbackFn && callbackFn(error))
-    .finally(() => fetchingIssues(false))
+    .finally(() => dispatch(fetchingIssues(false)))
 }
