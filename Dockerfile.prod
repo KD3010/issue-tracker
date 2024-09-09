@@ -11,8 +11,9 @@ RUN npx prisma migrate
 
 COPY . .
 
-RUN ./next/npm build
+RUN cd /next
+RUN npm run build
 
 EXPOSE 500
 
-CMD ["./next/npm", "start"]
+CMD ["npm", "start"]
