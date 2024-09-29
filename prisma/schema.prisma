@@ -9,16 +9,18 @@ generator client {
 }
 
 datasource db {
- provider  = "postgresql"
- url       = env("DATABASE_URL")
- directUrl = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-// datasource db {
-//   provider = "postgresql"
-//   url = env("POSTGRES_PRISMA_URL") // uses connection pooling
-//   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-// }
+model User {
+  id       Int     @id @unique @default(autoincrement())
+  name     String  @db.VarChar(255)
+  email    String  @unique @db.Text
+  password String  @db.Text
+  Issues   Issue[]
+}
 
 model Issue {
   id          Int      @id @default(autoincrement())
@@ -27,8 +29,8 @@ model Issue {
   statuses    Status   @default(OPEN)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  authorId    String   @db.Text
-  author      String   @db.Text
+  authorId    String   @unique
+  author      User     @relation(fields: [authorId], references: [email])
 }
 
 enum Status {

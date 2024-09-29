@@ -23,3 +23,17 @@ export const singleIssueSchema = z.object({
 })
 
 export const IssueSchema = singleIssueSchema.array();
+
+export const UserSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    email: z.string().email(),
+    password: z.string(),
+    issues: IssueSchema
+})
+
+export const SignupSchema = z.object({
+    email: z.string().email(),
+    password: z.string(),
+    confirmPassword: z.string()
+})
