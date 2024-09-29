@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/prisma/db';
 import { createIssueSchema, IssueSchema } from '@/lib/validation';
-import { currentUser } from '@clerk/nextjs/server';
+import { getServerSession } from 'next-auth';
 
 export async function GET(request: NextRequest) {
-    const user = await currentUser();
-    const allIssues = await prisma.issue.findMany({
+    const currentUser = await getServerSession();
+    const allIssues = currentUser && await prisma.issue.findMany({
         where: {
-            authorId: user?.emailAddresses[0].emailAddress
+            authorId: currentUser?.user?.email as string 
         }
     });
 
@@ -22,21 +22,19 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const user = await currentUser();
     const body = await request.json();
+    const currentUser = await getServerSession();
     const validation = createIssueSchema.safeParse(body);
 
     if(!validation.success) {
         return NextResponse.json(validation.error.errors, { status: 400 })
     }
-    const username =  `${user?.firstName} ${user?.lastName}`
     
-    const newIssue = user && await prisma.issue.create({
+    const newIssue = currentUser && await prisma.issue.create({
         data: {
             title: body.title,
             description: body.description,
-            author: username,
-            authorId: user.emailAddresses[0].emailAddress
+            authorId: currentUser?.user?.email as string
         }
     });
 

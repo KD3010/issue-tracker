@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, _: NextResponse) {
-    return Response.json({message: 'Backend connected!'})
+export async function GET(_: NextRequest) {
+    return NextResponse.json({message: 'Backend connected!'})
 }
