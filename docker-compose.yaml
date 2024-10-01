@@ -1,29 +1,14 @@
 version: '3.8'
 services:
-  # issue-tracker-dev:
-  #   build: 
-  #     args:
-  #       - NODE_ENV=dev
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #   image: 'it-dev'
-  #   ports:
-  #     - 3000:3000
-  #   container_name: 'IT-DEV'
-  #   volumes:
-  #     - ./app:/next/app
-  #   env_file:
-  #     - .env
-
-  issue-tracker-prod:
+  issue-tracker:
     build: 
       args:
         - NODE_ENV=prod
       context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     image: 'it-prod'
     ports:
-      - 5000:5000
+      - 3000:3000
     container_name: 'IT-PROD'
     env_file:
       - .env
