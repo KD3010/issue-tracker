@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from '@/components/ui/use-toast';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Spinner from '@/components/ui/Spinner';
+import Loading from '../Loading/Loading';
 
 type TCreateIssue = z.infer<typeof createIssueSchema>
 
@@ -39,18 +40,21 @@ const IssueForm = () => {
         title: response.data.message,
         description: `New issue with title ${response.data.issue.title} has been created at ${Date.now()}`
       });
-      setTimeout(() => router.push('/issues'), 2000);
   }).catch(error => (
       toast({
         variant: 'destructive',
         title: 'Uh Oh! Looks like there is some issue',
         description: 'Please contact your provider to resolve the issue.'
       })
-    )).finally(() => setLoading(false))
+    )).finally(() => {
+      setLoading(false)
+      router.push("/")
+    })
   }
 
   return (
-      <Form {...form}>
+      <Suspense fallback={<Loading />}>
+        <Form {...form}>
       <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
@@ -80,6 +84,7 @@ const IssueForm = () => {
           <Button disabled={loading} type='submit'>Create Issue {loading && <Spinner />}</Button>
       </form>
     </Form>
+    </Suspense>
   )
 }
 

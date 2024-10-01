@@ -25,7 +25,7 @@ const NavBar = () => {
             {links.map((link) => 
               <Link prefetch={false} key={link.href} className={classNames({
                 'text-zinc-500 hover:text-zinc-800 translate-color': true,
-                'underline': link.href === pathname,
+                'text-zinc-900 font-semibold': link.href === pathname,
               })} href={link.href}>{link.label}
             </Link>)}
             <Button className='px-4 py-1' asChild>
