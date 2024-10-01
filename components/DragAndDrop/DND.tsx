@@ -24,11 +24,12 @@ const DND = () => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { over, active } = event;
-    setParent(over?.id)
+    
     //if dropped over same container
     if(over?.id.toString() === active?.data?.current?.statuses) {
       return;
     } else {
+      setParent(over?.id)
       const updatedIssueData = {
         title: active?.data?.current?.title,
         description: active?.data?.current?.description,
