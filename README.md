@@ -8,3 +8,6 @@ Next Things :-
 5. Add comments section in a single issue, target start date and end date.
 6. Add functionality to tag a user in the comment so that the user can tag the concerning people.
 7. Add this Next App to a mono repo, so that all the things under this can work as a single monolithic app and everything else, such as comments will become a different microservice.
+
+Advancements :-
+1. Once user creates start date and end date and, based on the activeness of user for updating the tickets and how quick the user is to respond to the comments and remarks, add insights page to give personalized insights using graph or other things.
