@@ -9,7 +9,7 @@ type TSingleIssue = z.infer<typeof singleIssueSchema>
 type TIssueList = z.infer<typeof IssueSchema>
 
 
-const initialState = {
+export const initialState = {
     issueList: <any>[],
     issue: <any>{},
     issueLoading: <any>false,
@@ -58,6 +58,10 @@ const fetchingIssues = (payload: boolean) => {
     }
 }
 
+export const resetIssue = (callbackFn: Function = () => {}) => (dispatch: AppDispatch) => {
+    dispatch(fetchedSingleIssue(initialState.issue))
+}
+
 export const fetchAllIssues = (callbackFn: Function) => (dispatch: AppDispatch, getState: RootState) => {
     dispatch(fetchingIssues(true));
     axios.get('/api/issues')
@@ -70,17 +74,20 @@ export const fetchAllIssues = (callbackFn: Function) => (dispatch: AppDispatch, 
       )).finally(() => dispatch(fetchingIssues(false)));
 }
 
-export const fetchSingleIssue = (issueId: String, callbackFn: Function) => (dispatch: AppDispatch) => {
+export const fetchSingleIssue = (issueId: String, callbackFn: Function = () => {}) => (dispatch: AppDispatch) => {
     dispatch(fetchingIssues(true));
     axios.get(`/api/issues/${issueId}`)
-    .then((response) => dispatch(fetchedSingleIssue(response.data.singleIssue)))
+    .then((response) => {
+        dispatch(fetchedSingleIssue(response.data.singleIssue))
+        callbackFn(response?.data?.message)
+    })
     .catch((error) => callbackFn(error.message))
     .finally(() => dispatch(fetchingIssues(false)));
 }
 
 export const deleteIssue = (issueId: Number, callbackFn: Function) => () => {
     axios.delete(`/api/issues/${issueId}`)
-    .then(response => callbackFn && callbackFn(response.data.message))
+    .then(response => callbackFn && callbackFn(response?.data?.message))
     .catch((error) => callbackFn && callbackFn(error.message));
 }
 
@@ -88,6 +95,6 @@ export const updateIssue = (issueId: Number, data: TCreateIssue, callbackFn: Fun
     dispatch(fetchingIssues(true))
     axios.put(`/api/issues/${issueId}`, data)
     .then((response) => callbackFn && callbackFn(response))
-    .catch(error => callbackFn && callbackFn(error))
+    .catch(error => callbackFn && callbackFn('Could not update the issue. Please try later'))
     .finally(() => dispatch(fetchingIssues(false)))
 }

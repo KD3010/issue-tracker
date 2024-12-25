@@ -1,5 +1,4 @@
 'use client'
-import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
@@ -17,24 +16,55 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from '@/components/ui/use-toast';
-import { Suspense, useState } from 'react';
+import { toast } from '@/components/ui/use-toast';
+import { useState } from 'react';
 import Spinner from '@/components/ui/Spinner';
-import Loading from '../Loading/Loading';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { FaAngleDoubleDown, FaAngleDoubleUp, FaEquals, FaExclamationCircle } from 'react-icons/fa';
+import { DialogClose } from '../ui/dialog';
+import DynamicDropdown from '../DynamicDropdown';
+import { getSession } from 'next-auth/react';
 
 type TCreateIssue = z.infer<typeof createIssueSchema>
 
+const getSessionDetails = async () => {
+  const session = await getSession();
+  return session?.user?.name;
+}
+
 const IssueForm = () => {
+  const user = getSessionDetails();
+  const [ currentProject, setCurrentProject ] = useState<any>({
+    id: -1,
+    name: '',
+    organizationId: -1
+  });
+  const [ priority, setPriority ] = useState<string>('');
+  
   const [loading, setLoading] = useState<boolean>(false);
-  const router = useRouter();
-  const { toast } = useToast();
-  const form = useForm<TCreateIssue>({
+  const form = useForm<any>({
     resolver: zodResolver(createIssueSchema)
   })
+  const [date, setDate] = useState<{
+    targetStartDate: string,
+    targetEndDate: string
+  }>({
+    targetStartDate: '',
+    targetEndDate: ''
+  });
 
   const onSubmit = async (data: TCreateIssue) => {
+    console.log(date, priority, currentProject)
     setLoading(true);
-    await axios.post('/api/issues', data)
+    const IssueData = {
+      ...data,
+      priority: priority,
+      projectId: currentProject?.id,
+      targetStartDate: date.targetStartDate,
+      targetEndDate: date.targetEndDate
+    }
+
+    await axios.post('/api/issues', IssueData)
     .then(response => {
       toast({
         title: response.data.message,
@@ -48,43 +78,110 @@ const IssueForm = () => {
       })
     )).finally(() => {
       setLoading(false)
-      router.push("/")
     })
   }
 
   return (
-      <Suspense fallback={<Loading />}>
-        <Form {...form}>
+      
+      <Form {...form}>
       <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
-        <FormField
-          control={form.control}
-          name='title'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Issue Title</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}/>
+        <div className='border-b border-gray-400 pb-4 flex'>
+          <div className='basis-1/2 pr-4'>
           <FormField 
             control={form.control}
-            name='description'
-            render={({field}) => (
+            name='project'
+            render={() => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>Project</FormLabel>
                 <FormControl>
-                  <SimpleMDE {...field}/>
+                    <DynamicDropdown currentItem={currentProject} setCurrentItem={setCurrentProject}/>
+                  
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
-          <Button disabled={loading} type='submit'>Create Issue {loading && <Spinner />}</Button>
+          
+          <FormField
+            control={form.control}
+            name='priority'
+            render={({field}) => (
+              <FormItem>
+                <FormLabel>Priority</FormLabel>
+                <FormControl>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger><button className='text-md border border-gray-400 px-3 py-1/2 rounded-md ml-4'>{priority || 'Minor'}</button></DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem {...field} onSelect={() => setPriority('Minor')}>
+                        <FaAngleDoubleDown color='#008000' size={20} />
+                        Minor
+                      </DropdownMenuItem>
+                      <DropdownMenuItem {...field} onSelect={() => setPriority('Normal')}>
+                        <FaEquals size={20} color='#0000A8' />
+                        Normal
+                      </DropdownMenuItem>
+                      <DropdownMenuItem {...field} onSelect={() => setPriority('Critical')}>
+                        <FaAngleDoubleUp color='#FF4500' size={20} />
+                        Critical
+                      </DropdownMenuItem>
+                      <DropdownMenuItem {...field} onSelect={() => setPriority('Blocker')}>
+                        <FaExclamationCircle color='#8B0000' size={20} />
+                        Blocker
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          </div>
+          <div className='border-l border-gray-300 pl-4 basis-1/2'>
+            <div className='flex gap-2'>
+              <p><b className='font-bold'>Reporter</b> : {user}</p>
+            </div>
+          </div>
+        </div>
+        <div className='border-b border-gray-400 pb-4'>
+          <FormField
+            control={form.control}
+            name='title'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Summary *</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}/>
+            <FormField 
+              control={form.control}
+              name='description'
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel>Description *</FormLabel>
+                  <FormControl>
+                    <SimpleMDE {...field}/>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+        </div>
+
+        <div>
+          <FormItem>
+            <FormLabel>Start Date</FormLabel>
+              <input name='targetStartDate' className='ml-2 border border-gray-400 px-1 py-[1px] rounded-md' type='date' onChange={(e) => setDate({...date, [e.target.name]: e.target.value})} />
+          </FormItem>
+          <FormItem>
+            <FormLabel>End Date</FormLabel>
+            <input name="targetEndDate" className='ml-2 border border-gray-400 px-1 py-[1px] rounded-md' type='date' onChange={(e) => setDate({...date, [e.target.name]: e.target.value})} />
+          </FormItem>
+        </div>
+        <DialogClose><Button disabled={loading} type='submit'>Create Issue {loading && <Spinner color={"black"} />}</Button></DialogClose>
       </form>
     </Form>
-    </Suspense>
   )
 }
 

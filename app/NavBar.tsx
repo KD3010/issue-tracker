@@ -9,12 +9,15 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger } from '@radix-ui/r
 import { signOut } from 'next-auth/react';
 import { FaUserAlt } from "react-icons/fa";
 import { DropdownMenuContent } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import IssueForm from '@/components/IssueForm/IssueForm';
 
 const NavBar = () => {
   const pathname = usePathname();
   const links = [
     {label: 'Dashboard', href: '/'},
-    {label: 'Issues', href: '/issues'}
+    {label: 'Issues', href: '/issues'},
+    {label: 'Kanban', href: '/kanban'},
   ]
 
   return (
@@ -28,9 +31,15 @@ const NavBar = () => {
                 'text-zinc-900 font-semibold': link.href === pathname,
               })} href={link.href}>{link.label}
             </Link>)}
-            <Button className='px-4 py-1' asChild>
-              <Link prefetch={false} href={"/issues/new"}>Create New Issue</Link>
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild><Button variant="default">Create</Button></DialogTrigger>
+              <DialogContent className='max-w-[50%] p-6 max-h-[400px] overflow-y-auto'>
+                <DialogHeader><DialogTitle>Create new issue</DialogTitle></DialogHeader>
+                <div>
+                  <IssueForm />
+                </div>
+              </DialogContent>
+            </Dialog>
           </ul>
         </div>
         <DropdownMenu>
@@ -39,6 +48,7 @@ const NavBar = () => {
             <DropdownMenuItem className='px-2 outline-none hover:bg-slate-100' onClick={() => signOut()}>Log Out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        
     </nav>
   )
 }

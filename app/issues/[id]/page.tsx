@@ -1,142 +1,138 @@
 'use client'
+import Markdown from 'react-markdown'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { deleteIssue, fetchSingleIssue, updateIssue } from '@/redux/issues';
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import classNames from 'classnames'
 import { MdEdit } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
-import { useParams, useRouter } from 'next/navigation';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useForm } from 'react-hook-form';
-import { TCreateIssue } from '@/lib/types';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createIssueSchema } from '@/lib/validation';
 import { Skeleton } from "@/components/ui/skeleton"
+import { deleteIssue, fetchSingleIssue, resetIssue, updateIssue } from '@/redux/issues';
+import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
+import type { TCreateIssue, TSingleIssue } from '@/lib/types';
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { updateIssueSchema } from '@/lib/validation';
+import { Textarea } from '@/components/ui/textarea';
+import { DialogTitle } from '@radix-ui/react-dialog';
+import Spinner from '@/components/ui/Spinner';
 
 const Page = () => {
-  const { issue }: {issue: any} = useAppSelector(state => state.Issues);
-  const form = useForm<TCreateIssue>({
-    resolver: zodResolver(createIssueSchema)
-  })
-  const [defaultValues, setDefaultValues] = useState<TCreateIssue>({
-    title: issue.title,
-    description: issue.description
-  })
-  const params = useParams<{id: string}>();
-  
-  const [isEdit, setIsEdit] = useState(false);
+  const { issue, issueLoading }: {issue: TSingleIssue, issueLoading: boolean} = useAppSelector(state => state.Issues);
   const dispatch = useAppDispatch<any>();
-  const router = useRouter()
+  const router = useRouter();
+  const params = useParams<{id: string}>()
 
   useEffect(() => {
-    dispatch(fetchSingleIssue(params.id, (message: string) => {
-      toast.error(message);
-    }))
-  }, [isEdit, dispatch, params.id])
+    dispatch(fetchSingleIssue(params.id))
+
+    return () => {
+      dispatch(resetIssue());
+    }
+  }, [params.id, dispatch])
 
   const handleDeleteClick = () => {
     dispatch(deleteIssue(issue.id, (message: string) => {
-      toast.success(message);
+      toast(message)
       router.push('/issues')
   }))
   }
 
-  const onSubmit = (data: TCreateIssue) => {
-    dispatch(updateIssue(issue.id, data, (response: any) => {
-      response.status === 200 ? toast.success(response.message) : toast.error(response.message)
-      setIsEdit(false);
-  }))
-  }
-
-  if(isEdit) {
-    return (
-      <Form {...form}>
-        <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            defaultValue={defaultValues.title}
-            control={form.control}
-            name='title'
-            render={({field}) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-              </FormItem>
-            )}
-            />
-            <FormField 
-            defaultValue={defaultValues.description}
-            control={form.control}
-            name='description'
-            render={({field}) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea {...field}/>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className='space-x-4'>
-            <Button type='submit' className='px-5'>Update</Button>
+  return (
+      <Suspense fallback={<Spinner color={"black"} />}>
+          <div className='space-y-4'>
+          <h1><span className='text-blue-500 font-bold'>{`Issue-${issueLoading ? '' : issue?.id}`}</span> <p>{issue.title}</p></h1>
+          <article><b>Description</b> <p><Markdown>{issue.description}</Markdown></p></article>
+          <p><b>Status</b> : <span className={classNames({
+                    'text-red-700': issue.status === 'OPEN',
+                    'text-gray-600': issue.status === 'CLOSED',
+                    'text-blue-800': issue.status === 'IN_PROGRESS',
+          })}>{issue.status}</span></p>
+          <div className='flex space-x-6'>
+            <p><b>Created At </b>: {issue.createdAt?.toString()}</p>
+            <p><b>Updated At </b>: {issue.updatedAt?.toString()}</p>
           </div>
-        </form>
-        <ToastContainer />
-      </Form>
-    )
+          <div className='flex space-x-6'>
+            <EditIssueDialog />
+            <Button 
+              className='bg-slate-200 flex gap-1 w-[90px] text-red-700 cursor-pointer hover:bg-slate-300 transition-all'
+              onClick={handleDeleteClick}>
+                <FaTrash size={16} /> Delete
+            </Button>
+            
+          </div>
+        </div>
+      </Suspense>
+  )
+}
+
+const EditIssueDialog = () => {
+  const { issue, issueLoading}: {issue: TSingleIssue, issueLoading: boolean} = useAppSelector(state => state.Issues);
+  const dispatch = useAppDispatch<any>();
+
+  const form = useForm<TCreateIssue>({
+    resolver: zodResolver(updateIssueSchema)
+  })
+
+  const onSubmit = (data: TCreateIssue) => {
+    data.title = data?.title || issue?.title;
+    data.description = data?.description || issue?.description;
+    dispatch(updateIssue(issue?.id, data, ((response: any) => {
+      response?.status === 200 ? toast.success(response?.data?.message) : toast.error(response);
+     })))
   }
 
   return (
-    <Suspense fallback={<IssueSkeleton />}>
-      <div className='space-y-4'>
-      <h1><span className='text-blue-500 font-bold'>{`Issue-${issue.id}`}</span> <p>{issue.title}</p></h1>
-      <article><b>Description</b> <p>{issue.description}</p></article>
-      <p><b>Status</b> : <span className={classNames({
-                'text-red-700': issue.statuses === 'OPEN',
-                'text-gray-600': issue.statuses === 'CLOSED',
-                'text-blue-800': issue.statuses === 'IN_PROGRESS',
-      })}>{issue.statuses}</span></p>
-      <div className='flex space-x-6'>
-        <p><b>Created At </b>: {issue.createdAt}</p>
-        <p><b>Updated At </b>: {issue.updatedAt}</p>
-      </div>
-      <div className='flex space-x-6'>
-        <Button 
-          onClick={() => setIsEdit(true)}
-          className='bg-slate-200 flex gap-1 w-[90px] text-blue-700 cursor-pointer hover:bg-slate-300 transition-all'>
-            <MdEdit size={16} />Edit
-        </Button>
-        <Button 
-          className='bg-slate-200 flex gap-1 w-[90px] text-red-700 cursor-pointer hover:bg-slate-300 transition-all'
-          onClick={handleDeleteClick}>
-            <FaTrash size={16} /> Delete
-        </Button>
-        
-      </div>
-      <ToastContainer stacked />
-    </div>
-    </Suspense>
+    <Dialog>
+      <DialogTrigger>
+        <div 
+          className='bg-slate-200 flex gap-1 w-[90px] text-blue-700 cursor-pointer hover:bg-slate-300 transition-allflex justify-center items-center py-2 px-1 rounded-md'>
+          <MdEdit size={16} />Edit
+        </div>
+      </DialogTrigger>
+      <DialogContent className='sm:max-w-[50rem]'>
+        <DialogHeader className='font-bold text-blue-700'>
+          <DialogTitle>Edit Issue - {issue?.id}</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
+            <FormField control={form?.control} name='title'
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel className='font-bold text-md'>Title</FormLabel>
+                  <FormControl>
+                    <Input defaultValue={issue?.title} {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField control={form?.control} name='description'
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel className='font-bold text-md'>Description</FormLabel>
+                  <FormControl>
+                    <Textarea defaultValue={issue?.description} rows={10} {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <Button disabled={issueLoading} type='submit'>Update</Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
 const IssueSkeleton = () => {
   return (
     <div className='flex flex-col space-y-4'>
-      <Skeleton className='w-[100%] rounded-md' />
+      <Skeleton className='w-[100%] rounded-md bg-gray-200' />
       <Skeleton className='w-[80%] rounded-md' />
       <Skeleton className='w-[100%] rounded-md' />
       <Skeleton className='w-[80%] rounded-md' />

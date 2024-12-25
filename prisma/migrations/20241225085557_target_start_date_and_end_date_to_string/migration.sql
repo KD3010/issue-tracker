@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Issue" ALTER COLUMN "targetEndDate" SET DATA TYPE TEXT,
+ALTER COLUMN "targetStartDate" SET DATA TYPE TEXT;
