@@ -43,7 +43,9 @@ export async function POST(request: NextRequest) {
             priority: body.priority,
             projectId: body.projectId,
             targetStartDate: body.targetStartDate,
-            targetEndDate: body.targetEndDate
+            targetEndDate: body.targetEndDate,
+            assigneeId: body.assignee,
+            fixVersion: body.fixVersion
         }
     } else {
         data = {
@@ -51,7 +53,9 @@ export async function POST(request: NextRequest) {
             description: body.description,
             reporterId: currentUser?.user?.email as string,
             priority: body.priority,
-            projectId: body.projectId
+            projectId: body.projectId,
+            assigneeId: body.assignee,
+            fixVersion: body.fixVersion
         }
     }
 

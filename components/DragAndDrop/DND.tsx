@@ -86,7 +86,7 @@ const DragItemContent = ({issue}: {
       <h1 className='text-lg font-bold'>
         <span className='text-blue-500'>{`${issue?.project?.name}-${issue.id}`}</span> : {issue.title}
       </h1>
-      <p>{issue.description.substring(0, 50) + "..."}</p>
+      <p>{issue?.description?.length > 40 ? `${issue?.description?.substring(0, 40)}...` : issue?.description}</p>
     </div>
   )
 }

@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from '@/components/ui/use-toast';
-import { useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Spinner from '@/components/ui/Spinner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { FaAngleDoubleDown, FaAngleDoubleUp, FaEquals, FaExclamationCircle } from 'react-icons/fa';
@@ -29,18 +29,21 @@ type TCreateIssue = z.infer<typeof createIssueSchema>
 
 const getSessionDetails = async () => {
   const session = await getSession();
-  return session?.user?.name;
+  return session?.user;
 }
 
 const IssueForm = () => {
-  const user = getSessionDetails();
+  const [userData, setUserData] = useState<any>();
+  useEffect(() => {
+    getSessionDetails().then(data => setUserData(data))
+  }, [])
   const [ currentProject, setCurrentProject ] = useState<any>({
     id: -1,
     name: '',
     organizationId: -1
   });
   const [ priority, setPriority ] = useState<string>('');
-  
+  const [fixVersion, setFixVersion] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const form = useForm<any>({
     resolver: zodResolver(createIssueSchema)
@@ -52,16 +55,40 @@ const IssueForm = () => {
     targetStartDate: '',
     targetEndDate: ''
   });
+  const [contributorList, setContributorList] = useState<{
+    isLoading: boolean,
+    data: any[]
+  }>();
+  const [selectedAssignee, setSelectedAssignee] = useState<any>();
+  const api_url = "/api/user/contributors"
+
+  useEffect(() => {
+    const fetchContributors = async () => {
+      setContributorList({isLoading: true, data: contributorList?.data || []})
+      try {
+        const response = await axios.get(api_url);
+        setContributorList({isLoading: false, data: response?.data?.data})
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Uh Oh! Looks like there is some issue',
+        })
+        setContributorList({isLoading: false, data: []})
+      }
+    }
+    fetchContributors();
+  }, [])
 
   const onSubmit = async (data: TCreateIssue) => {
-    console.log(date, priority, currentProject)
     setLoading(true);
     const IssueData = {
       ...data,
       priority: priority,
       projectId: currentProject?.id,
       targetStartDate: date.targetStartDate,
-      targetEndDate: date.targetEndDate
+      targetEndDate: date.targetEndDate,
+      assignee: selectedAssignee?.email,
+      fixVersion: fixVersion
     }
 
     await axios.post('/api/issues', IssueData)
@@ -95,7 +122,6 @@ const IssueForm = () => {
                 <FormLabel>Project</FormLabel>
                 <FormControl>
                     <DynamicDropdown currentItem={currentProject} setCurrentItem={setCurrentProject}/>
-                  
                 </FormControl>
               </FormItem>
             )}
@@ -137,8 +163,30 @@ const IssueForm = () => {
           </div>
           <div className='border-l border-gray-300 pl-4 basis-1/2'>
             <div className='flex gap-2'>
-              <p><b className='font-bold'>Reporter</b> : {user}</p>
+              <p><b className='font-bold'>Reporter</b> : {userData?.name}</p>
             </div>
+            <label className='flex gap-2 items-center mt-2'>
+              <p>Assignee: </p>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <input className='px-2 py-1 border border-gray-400 rounded-md' 
+                  value={setSelectedAssignee?.length > 0 ? selectedAssignee?.name : ''} />
+                </DropdownMenuTrigger>
+                <Suspense fallback={<div>Loading...</div>}>
+                <DropdownMenuContent className='w-56'>
+                    {contributorList?.data?.map((contributor, i) => (
+                      <DropdownMenuItem key={i} onSelect={() => setSelectedAssignee(contributor)}>
+                        {contributor.name}
+                      </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+                </Suspense>
+              </DropdownMenu>
+            </label>
+            <label className='flex gap-2 items-center mt-2'>
+              <p>Fix Version: </p>
+              <input className='px-2 py-1 border border-gray-400 rounded-md w-24' onChange={(e: any) => setFixVersion(e.target.value)} value={fixVersion} />
+            </label>
           </div>
         </div>
         <div className='border-b border-gray-400 pb-4'>

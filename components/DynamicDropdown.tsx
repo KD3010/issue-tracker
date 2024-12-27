@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -29,7 +29,7 @@ const DynamicDropdown = ({currentItem, setCurrentItem}: {
   return (
     <DropdownMenu>
         <DropdownMenuTrigger>
-            <button onClick={getAllProjects} className='text-md border border-gray-400 px-3 py-1/2 rounded-md ml-4'>
+            <button className='text-md border border-gray-400 px-3 py-1/2 rounded-md ml-4'>
             {currentItem?.name !== "" ? currentItem?.name : 'Select Project'}
             </button>
         </DropdownMenuTrigger>

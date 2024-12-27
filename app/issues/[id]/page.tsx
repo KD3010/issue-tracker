@@ -22,7 +22,7 @@ import { DialogTitle } from '@radix-ui/react-dialog';
 import Spinner from '@/components/ui/Spinner';
 
 const Page = () => {
-  const { issue, issueLoading }: {issue: TSingleIssue, issueLoading: boolean} = useAppSelector(state => state.Issues);
+  const { issue, issueLoading }: {issue: any, issueLoading: boolean} = useAppSelector(state => state.Issues);
   const dispatch = useAppDispatch<any>();
   const router = useRouter();
   const params = useParams<{id: string}>()
@@ -42,31 +42,31 @@ const Page = () => {
   }))
   }
 
+  if(issueLoading) return <div className='flex w-full justify-center'><Spinner color={"black"} size='10' /></div>
+
   return (
-      <Suspense fallback={<Spinner color={"black"} />}>
-          <div className='space-y-4'>
-          <h1><span className='text-blue-500 font-bold'>{`Issue-${issueLoading ? '' : issue?.id}`}</span> <p>{issue.title}</p></h1>
-          <article><b>Description</b> <p><Markdown>{issue.description}</Markdown></p></article>
-          <p><b>Status</b> : <span className={classNames({
-                    'text-red-700': issue.status === 'OPEN',
-                    'text-gray-600': issue.status === 'CLOSED',
-                    'text-blue-800': issue.status === 'IN_PROGRESS',
-          })}>{issue.status}</span></p>
-          <div className='flex space-x-6'>
-            <p><b>Created At </b>: {issue.createdAt?.toString()}</p>
-            <p><b>Updated At </b>: {issue.updatedAt?.toString()}</p>
-          </div>
-          <div className='flex space-x-6'>
-            <EditIssueDialog />
-            <Button 
-              className='bg-slate-200 flex gap-1 w-[90px] text-red-700 cursor-pointer hover:bg-slate-300 transition-all'
-              onClick={handleDeleteClick}>
-                <FaTrash size={16} /> Delete
-            </Button>
-            
-          </div>
-        </div>
-      </Suspense>
+    <div className='space-y-4'>
+      <h1 className='text-2xl'><span className='text-blue-500 flex font-bold'>{`${issue?.project?.name}-${issue?.id}`} <p className='text-black ml-2'>{issue.title}</p></span></h1>
+      <article><b>Description</b> <p><Markdown>{issue.description}</Markdown></p></article>
+      <p><b>Status</b> : <span className={classNames({
+                'text-red-700': issue.status === 'OPEN',
+                'text-gray-600': issue.status === 'CLOSED',
+                'text-blue-800': issue.status === 'IN_PROGRESS',
+      })}>{issue.status}</span></p>
+      <div className='flex space-x-6'>
+        <p><b>Created At </b>: {issue.createdAt?.toString()}</p>
+        <p><b>Updated At </b>: {issue.updatedAt?.toString()}</p>
+      </div>
+      <div className='flex space-x-6'>
+        <EditIssueDialog />
+        <Button 
+          className='bg-slate-200 flex gap-1 w-[90px] text-red-700 cursor-pointer hover:bg-slate-300 transition-all'
+          onClick={handleDeleteClick}>
+            <FaTrash size={16} /> Delete
+        </Button>
+        
+      </div>
+    </div>
   )
 }
 

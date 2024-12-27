@@ -1,7 +1,8 @@
 import React from 'react'
 
-const Spinner = ({color}: {
-  color: String
+const Spinner = ({color, size}: {
+  color: String,
+  size?: string
 }) => {
   return (
     <>
@@ -11,7 +12,7 @@ const Spinner = ({color}: {
         disabled
     >
         <div
-            className="inline-block h-6 w-6 animate-spin rounded-full border-[3px] border-solid border-current border-e-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            className={`inline-block h-${size || 6} w-${size || 6} animate-spin rounded-full border-[3px] border-solid border-current border-e-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]`}
             role="status">
                 <span
                 className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"

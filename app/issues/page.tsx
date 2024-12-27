@@ -45,7 +45,8 @@ const Page = () => {
       <Suspense fallback={<Spinner color={"black"} />}>
         <div className='flex-row space-y-6'>
         <div className='flex flex-wrap gap-6'>
-          {Array.isArray(issueList) ? issueList.map((issue: TSingleIssue, index: number) => (
+          {Array.isArray(issueList) && issueList.length === 0 && <p>No issues found</p>}
+          {Array.isArray(issueList) && issueList.map((issue: TSingleIssue, index: number) => (
             <Card key={issue.id} className='max-w-[250px] hover:scale-105 transition-scale duration-200 cursor-pointer' onClick={() => handleClick(issue.id)}>
             <CardHeader className='py-2'>
               <CardTitle>{issue.title}</CardTitle>
@@ -60,7 +61,7 @@ const Page = () => {
               <p>Created at : {issue.createdAt.toString().substring(0, 10)}</p>
             </CardContent>
             </Card>
-          )) : <Spinner color={"black"} />}
+          ))}
         </div>
       </div>
     </Suspense>

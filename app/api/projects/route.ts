@@ -31,30 +31,22 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     const body = await req.json();
-
     const newProject = await prisma.$transaction(async tx => {
         // Step 1: Create a new project
         const project = await tx.project.create({
             data: {
                 name: body.name,
+                created_byId: body.creator,
             },
         });
 
-        const creator = await tx.user.findUnique({
-            where: {
-                email: body.creator,
-            },
-        })
-
-        if (!creator) {
-            throw new Error("Creator not found");
-        }
-
-        await tx.contributor.create({
-            data: {
-                userId: creator.email,
-                projectId: project.id,
-            },
+        await tx.contributor.createMany({
+            data: body.contributors.map((contributor: string) => {
+                return {
+                    projectId: project.id,
+                    userId: contributor,
+                }
+            })
         })
 
         return project; // Return the created project
