@@ -2,7 +2,7 @@
 import classNames from 'classnames';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React, { useEffect } from 'react'
+import React, { useState } from 'react'
 import { AiFillBug } from "react-icons/ai";
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
@@ -11,14 +11,24 @@ import { FaUserAlt } from "react-icons/fa";
 import { DropdownMenuContent } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import IssueForm from '@/components/IssueForm/IssueForm';
+import { useAppDispatch } from '@/lib/hooks';
+import { fetchAllIssues } from '@/redux/issues';
 
 const NavBar = () => {
   const pathname = usePathname();
+  const dispatch = useAppDispatch<any>();
+  const [open, setOpen] = useState<boolean>(false);
   const links = [
     {label: 'Dashboard', href: '/'},
     {label: 'Issues', href: '/issues'},
     {label: 'Kanban', href: '/kanban'},
   ]
+
+  const handleModalClose = () => {
+    dispatch(fetchAllIssues(() => {
+      setOpen(false)
+    }))
+  }
 
   return (
     <nav className='flex justify-between items-center h-14 border-b px-6'>
@@ -31,12 +41,12 @@ const NavBar = () => {
                 'text-zinc-900 font-semibold': link.href === pathname,
               })} href={link.href}>{link.label}
             </Link>)}
-            <Dialog>
-              <DialogTrigger asChild><Button variant="default">Create</Button></DialogTrigger>
+            <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+              <DialogTrigger asChild><Button onClick={() => setOpen(true)} variant="default">Create</Button></DialogTrigger>
               <DialogContent className='max-w-[50%] p-6 max-h-[400px] overflow-y-auto'>
                 <DialogHeader><DialogTitle>Create new issue</DialogTitle></DialogHeader>
                 <div>
-                  <IssueForm />
+                  <IssueForm handleModalClose={handleModalClose} />
                 </div>
               </DialogContent>
             </Dialog>

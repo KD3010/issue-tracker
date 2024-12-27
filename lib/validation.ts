@@ -6,7 +6,8 @@ export const createIssueSchema = z.object({
     project: z.string().optional(),
     priority: z.enum(["Minor", "Normal", "Critical", "Blocker"]).optional(),
     targetStartDate: z.string().optional(),
-    targetEndDate: z.string().optional()
+    targetEndDate: z.string().optional(),
+    status: z.string().optional()
 })
 
 export const statusEnum = z.enum(["OPEN", "IN_PROGRESS", "CLOSED"])
