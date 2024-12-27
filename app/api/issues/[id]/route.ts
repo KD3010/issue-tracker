@@ -49,7 +49,16 @@ export async function PUT(req: NextRequest, context: {params: {id: Number}}) {
     
     const updatedIssue = await prisma.issue.update({
         where: {id: Number(id)},
-        data: body
+        data:  {
+            title: body.title,
+            description: body.description,
+            priority: body.priority,
+            targetStartDate: body.targetStartDate,
+            targetEndDate: body.targetEndDate,
+            assigneeId: body.assignee,
+            fixVersion: body.fixVersion,
+            status: body.status,        
+        }
     })
 
     return NextResponse.json({message: 'Issue updated succesfully', issue: updatedIssue}, {status: 200})

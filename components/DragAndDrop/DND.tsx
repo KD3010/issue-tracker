@@ -82,8 +82,8 @@ const DragItemContent = ({issue}: {
   issue: TSingleIssue
 }) => {
   return (
-    <div className='py-2'>
-      <h1 className='text-lg font-bold'>
+    <div className='py-2 text-md'>
+      <h1 className='font-bold'>
         <span className='text-blue-500'>{`${issue?.project?.name}-${issue.id}`}</span> : {issue.title}
       </h1>
       <p>{issue?.description?.length > 40 ? `${issue?.description?.substring(0, 40)}...` : issue?.description}</p>

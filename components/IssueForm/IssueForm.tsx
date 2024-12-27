@@ -21,9 +21,9 @@ import { Suspense, useEffect, useState } from 'react';
 import Spinner from '@/components/ui/Spinner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { FaAngleDoubleDown, FaAngleDoubleUp, FaEquals, FaExclamationCircle } from 'react-icons/fa';
-import { DialogClose } from '../ui/dialog';
 import DynamicDropdown from '../DynamicDropdown';
 import { getSession } from 'next-auth/react';
+import { useAppDispatch } from '@/lib/hooks';
 
 type TCreateIssue = z.infer<typeof createIssueSchema>
 
@@ -32,81 +32,134 @@ const getSessionDetails = async () => {
   return session?.user;
 }
 
-const IssueForm = () => {
+const IssueForm = ({issue, handleModalClose}: {
+  issue?: any,
+  handleModalClose: () => void
+}) => {
+  const dispatch = useAppDispatch<any>();
   const [userData, setUserData] = useState<any>();
-  useEffect(() => {
-    getSessionDetails().then(data => setUserData(data))
-  }, [])
-  const [ currentProject, setCurrentProject ] = useState<any>({
+  const [currentProject, setCurrentProject] = useState<any>({
     id: -1,
     name: '',
-    organizationId: -1
+    organizationId: -1,
   });
-  const [ priority, setPriority ] = useState<string>('');
+  const [priority, setPriority] = useState<string>('');
   const [fixVersion, setFixVersion] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const form = useForm<any>({
-    resolver: zodResolver(createIssueSchema)
-  })
+  const [status, setStatus] = useState<string>('');
   const [date, setDate] = useState<{
-    targetStartDate: string,
-    targetEndDate: string
+    targetStartDate: string;
+    targetEndDate: string;
   }>({
     targetStartDate: '',
-    targetEndDate: ''
+    targetEndDate: '',
   });
   const [contributorList, setContributorList] = useState<{
-    isLoading: boolean,
-    data: any[]
-  }>();
+    isLoading: boolean;
+    data: any[];
+  }>({ isLoading: false, data: [] });
   const [selectedAssignee, setSelectedAssignee] = useState<any>();
-  const api_url = "/api/user/contributors"
+
+  const form = useForm<any>({
+    resolver: zodResolver(createIssueSchema),
+    defaultValues: {
+      title: issue?.title || '',
+      description: issue?.description || '',
+    },
+  });
+
+  const api_url = '/api/user/contributors';
+
+  useEffect(() => {
+    getSessionDetails().then((data) => setUserData(data));
+  }, []);
 
   useEffect(() => {
     const fetchContributors = async () => {
-      setContributorList({isLoading: true, data: contributorList?.data || []})
+      setContributorList((prev) => ({ ...prev, isLoading: true }));
       try {
         const response = await axios.get(api_url);
-        setContributorList({isLoading: false, data: response?.data?.data})
+        setContributorList({ isLoading: false, data: response.data.data });
       } catch (error) {
         toast({
           variant: 'destructive',
-          title: 'Uh Oh! Looks like there is some issue',
-        })
-        setContributorList({isLoading: false, data: []})
+          title: 'Error fetching contributors',
+        });
+        setContributorList({ isLoading: false, data: [] });
       }
-    }
+    };
     fetchContributors();
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    if (issue) {
+      setCurrentProject(issue.project || { id: -1, name: '', organizationId: -1 });
+      setPriority(issue.priority || '');
+      setFixVersion(issue.fixVersion || '');
+      setDate({
+        targetStartDate: issue.targetStartDate || '',
+        targetEndDate: issue.targetEndDate || '',
+      });
+      setSelectedAssignee(issue.assignee || null);
+      setStatus(issue.status || '');
+    }
+  }, [issue]);
 
   const onSubmit = async (data: TCreateIssue) => {
     setLoading(true);
-    const IssueData = {
+    const issueData = {
       ...data,
-      priority: priority,
+      priority,
       projectId: currentProject?.id,
       targetStartDate: date.targetStartDate,
       targetEndDate: date.targetEndDate,
       assignee: selectedAssignee?.email,
-      fixVersion: fixVersion
+      fixVersion,
+    };
+
+    if(issue) {
+      delete issueData.projectId;
+      issueData.status = status;
+      await axios.put(`/api/issues/${issue.id}`, issueData)
+      .then((response) => {
+        toast({
+          title: response.data.message,
+          description: `Issue "${response.data.issue.title}" updated successfully.`,
+        });
+      }).catch((error) => {
+        toast({
+          variant: 'destructive',
+          title: 'Error updating issue',
+          description: 'Please contact support for assistance.',
+        });
+      }).finally(() => {
+        setLoading(false);
+      });
+    } else {
+      await axios
+      .post('/api/issues', issueData)
+      .then((response) => {
+        toast({
+          title: response.data.message,
+          description: `Issue "${response.data.issue.title}" updated successfully.`,
+        });
+
+        dispatch({ type: 'ADD_ISSUE', payload: response.data.issue });
+      })
+      .catch((error) => {
+        toast({
+          variant: 'destructive',
+          title: 'Error updating issue',
+          description: 'Please contact support for assistance.',
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
     }
 
-    await axios.post('/api/issues', IssueData)
-    .then(response => {
-      toast({
-        title: response.data.message,
-        description: `New issue with title ${response.data.issue.title} has been created at ${Date.now()}`
-      });
-  }).catch(error => (
-      toast({
-        variant: 'destructive',
-        title: 'Uh Oh! Looks like there is some issue',
-        description: 'Please contact your provider to resolve the issue.'
-      })
-    )).finally(() => {
-      setLoading(false)
-    })
-  }
+    handleModalClose();
+  };
 
   return (
       
@@ -160,6 +213,20 @@ const IssueForm = () => {
               </FormItem>
             )}
           />
+
+          {issue && (
+            <label className='mt-2 flex'>
+              <p>Status : &nbsp;</p>
+              <DropdownMenu>
+                <DropdownMenuTrigger className='text-md border border-gray-400 px-3 py-1/2 rounded-md ml-1/2'>{status}</DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setStatus('OPEN')}>OPEN</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatus('IN_PROGRESS')}>IN_PROGRESS</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatus('CLOSED')}>CLOSED</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </label>
+          )}
           </div>
           <div className='border-l border-gray-300 pl-4 basis-1/2'>
             <div className='flex gap-2'>
@@ -220,14 +287,14 @@ const IssueForm = () => {
         <div>
           <FormItem>
             <FormLabel>Start Date</FormLabel>
-              <input name='targetStartDate' className='ml-2 border border-gray-400 px-1 py-[1px] rounded-md' type='date' onChange={(e) => setDate({...date, [e.target.name]: e.target.value})} />
+              <input value={date?.targetStartDate} name='targetStartDate' className='ml-2 border border-gray-400 px-1 py-[1px] rounded-md' type='date' onChange={(e) => setDate({...date, [e.target.name]: e.target.value})} />
           </FormItem>
           <FormItem>
             <FormLabel>End Date</FormLabel>
-            <input name="targetEndDate" className='ml-2 border border-gray-400 px-1 py-[1px] rounded-md' type='date' onChange={(e) => setDate({...date, [e.target.name]: e.target.value})} />
+            <input value={date?.targetEndDate} name="targetEndDate" className='ml-2 border border-gray-400 px-1 py-[1px] rounded-md' type='date' onChange={(e) => setDate({...date, [e.target.name]: e.target.value})} />
           </FormItem>
         </div>
-        <DialogClose><Button disabled={loading} type='submit'>Create Issue {loading && <Spinner color={"black"} />}</Button></DialogClose>
+        <Button disabled={loading} type='submit'>{issue ? 'Update Issue' : 'Create Issue'} {loading && <Spinner color={"black"} />}</Button>
       </form>
     </Form>
   )

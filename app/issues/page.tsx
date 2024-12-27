@@ -20,7 +20,7 @@ import Spinner from '@/components/ui/Spinner'
 type TSingleIssue = z.infer<typeof singleIssueSchema>
 
 const Page = () => {
-  const { issueList } = useAppSelector(state => state.Issues);
+  const { issueList, issueLoading } = useAppSelector(state => state.Issues);
   const dispatch = useAppDispatch<any>();
   const router = useRouter()
 
@@ -40,6 +40,8 @@ const Page = () => {
   const handleClick = (id: number) => {
     router.push(`/issues/${id}`)
   }
+
+  if(issueLoading) return <div className='flex w-full justify-center'><Spinner color={"black"} size='10' /></div>
 
   return (
       <Suspense fallback={<Spinner color={"black"} />}>
