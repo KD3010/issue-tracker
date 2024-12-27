@@ -15,22 +15,93 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @unique @default(autoincrement())
-  name     String  @db.VarChar(255)
-  email    String  @unique @db.Text
-  password String  @db.Text
-  Issues   Issue[]
+  id              Int           @id @unique @default(autoincrement())
+  role            Role          @default(CONTRIBUTOR)
+  name            String        @db.VarChar(255)
+  email           String        @unique @db.Text
+  password        String        @db.Text
+  issueReported   Issue[]       @relation("Reporter")
+  issueAssigned   Issue[]       @relation("Assignee")
+  organizationId  Int?
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+  Attachment      Attachment[]
+  comments        Comment[]
+  contributions   Contributor[]
+  createdProjects Project[]
 }
 
 model Issue {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  description String   @db.Text
-  statuses    Status   @default(OPEN)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  authorId    String   @db.Text
-  author      User     @relation(fields: [authorId], references: [email])
+  id              Int          @id @default(autoincrement())
+  title           String       @db.VarChar(255)
+  description     String       @db.Text
+  priority        String       @db.VarChar(255)
+  status          Status       @default(OPEN)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  reporterId      String       @db.Text
+  reporter        User         @relation("Reporter", fields: [reporterId], references: [email])
+  assigneeId      String?
+  assignee        User?        @relation("Assignee", fields: [assigneeId], references: [email])
+  projectId       Int
+  project         Project      @relation(fields: [projectId], references: [id])
+  attachments     Attachment[]
+  comments        Comment[]
+  targetStartDate String?
+  targetEndDate   String?
+  fixVersion      String
+}
+
+model Comment {
+  id      Int    @id @default(autoincrement())
+  text    String @db.Text
+  issueId Int
+  issue   Issue  @relation(fields: [issueId], references: [id])
+  user    User   @relation(fields: [userId], references: [id])
+  userId  Int
+}
+
+model Attachment {
+  id            Int    @id @default(autoincrement())
+  url           String @db.Text
+  issueId       Int
+  issue         Issue  @relation(fields: [issueId], references: [id])
+  uploaded_by   User   @relation(fields: [uploaded_byId], references: [id])
+  uploaded_byId Int
+}
+
+model Contributor {
+  id        Int     @id @default(autoincrement())
+  userId    String  @db.Text
+  user      User    @relation(fields: [userId], references: [email])
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, projectId])
+}
+
+model Project {
+  id             Int           @id @default(autoincrement())
+  name           String        @db.VarChar(255)
+  issues         Issue[]
+  Organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId Int?
+  Contributors   Contributor[]
+  created_by     User          @relation(fields: [created_byId], references: [email])
+  created_byId   String
+  versions       String[]
+}
+
+model Organization {
+  id       Int       @id @default(autoincrement())
+  name     String    @db.VarChar(255)
+  projects Project[]
+  users    User[]
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  CONTRIBUTOR
 }
 
 enum Status {

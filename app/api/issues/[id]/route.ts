@@ -9,6 +9,10 @@ export async function GET(_: NextRequest, context: {params: {id: Number}}) {
     const singleIssue = await prisma.issue.findUnique({
         where: {
             id: Number(id)
+        },
+        include: {
+            project: true,
+            comments: true
         }
     })
 
