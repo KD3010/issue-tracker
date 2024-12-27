@@ -52,21 +52,24 @@ model Issue {
 }
 
 model Comment {
-  id      Int    @id @default(autoincrement())
-  text    String @db.Text
-  issueId Int
-  issue   Issue  @relation(fields: [issueId], references: [id])
-  user    User   @relation(fields: [userId], references: [id])
-  userId  Int
+  id         Int          @id @default(autoincrement())
+  text       String       @db.Text
+  issueId    Int
+  issue      Issue        @relation(fields: [issueId], references: [id])
+  user       User         @relation(fields: [userId], references: [email])
+  userId     String
+  attachmets Attachment[]
 }
 
 model Attachment {
-  id            Int    @id @default(autoincrement())
-  url           String @db.Text
+  id            Int      @id @default(autoincrement())
+  url           String   @db.Text
   issueId       Int
-  issue         Issue  @relation(fields: [issueId], references: [id])
-  uploaded_by   User   @relation(fields: [uploaded_byId], references: [id])
+  issue         Issue    @relation(fields: [issueId], references: [id])
+  uploaded_by   User     @relation(fields: [uploaded_byId], references: [id])
   uploaded_byId Int
+  Comment       Comment? @relation(fields: [commentId], references: [id])
+  commentId     Int?
 }
 
 model Contributor {
