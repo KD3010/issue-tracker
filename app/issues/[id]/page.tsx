@@ -21,6 +21,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { DialogTitle } from '@radix-ui/react-dialog';
 import Spinner from '@/components/ui/Spinner';
 
+const formatDate = (date: string) => {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit'
+  }).format(new Date(date)).toString()
+}
+
 const Page = () => {
   const { issue, issueLoading }: {issue: any, issueLoading: boolean} = useAppSelector(state => state.Issues);
   const dispatch = useAppDispatch<any>();
@@ -45,26 +53,41 @@ const Page = () => {
   if(issueLoading) return <div className='flex w-full justify-center'><Spinner color={"black"} size='10' /></div>
 
   return (
-    <div className='space-y-4'>
-      <h1 className='text-2xl'><span className='text-blue-500 flex font-bold'>{`${issue?.project?.name}-${issue?.id}`} <p className='text-black ml-2'>{issue.title}</p></span></h1>
-      <article><b>Description</b> <p><Markdown>{issue.description}</Markdown></p></article>
-      <p><b>Status</b> : <span className={classNames({
-                'text-red-700': issue.status === 'OPEN',
-                'text-gray-600': issue.status === 'CLOSED',
-                'text-blue-800': issue.status === 'IN_PROGRESS',
-      })}>{issue.status}</span></p>
-      <div className='flex space-x-6'>
-        <p><b>Created At </b>: {issue.createdAt?.toString()}</p>
-        <p><b>Updated At </b>: {issue.updatedAt?.toString()}</p>
+    <div className='flex'>
+      <div className='basis-2/3 space-y-4 pr-2'>
+        <h1 className='text-2xl'><span className='text-blue-500 flex font-bold'>{`${issue?.project?.name}-${issue?.id}`} <p className='text-black ml-2'>{issue.title}</p></span></h1>
+        <article><b>Description</b> <p><Markdown>{issue.description}</Markdown></p></article>
+        <p><b>Status</b> : <span className={classNames({
+                  'text-red-700': issue.status === 'OPEN',
+                  'text-gray-600': issue.status === 'CLOSED',
+                  'text-blue-800': issue.status === 'IN_PROGRESS',
+        })}>{issue.status}</span></p>
+        <div className='flex space-x-6'>
+          <p><b>Created At </b>: {issue.createdAt?.toString()}</p>
+          <p><b>Updated At </b>: {issue.updatedAt?.toString()}</p>
+        </div>
+        <div className='flex space-x-6'>
+          <EditIssueDialog />
+          <Button 
+            className='bg-slate-200 flex gap-1 w-[90px] text-red-700 cursor-pointer hover:bg-slate-300 transition-all'
+            onClick={handleDeleteClick}>
+              <FaTrash size={16} /> Delete
+          </Button>
+          
+        </div>
       </div>
-      <div className='flex space-x-6'>
-        <EditIssueDialog />
-        <Button 
-          className='bg-slate-200 flex gap-1 w-[90px] text-red-700 cursor-pointer hover:bg-slate-300 transition-all'
-          onClick={handleDeleteClick}>
-            <FaTrash size={16} /> Delete
-        </Button>
-        
+      <div className='basis-1/3 pl-2'>
+        <div className='mt-10'>
+          <h3 className='font-extrabold'>People</h3>
+          <div className='flex space-x-4 font-light'><b className='font-semibold'>Reporter</b> : {issue?.reporter?.name}</div>
+          <div className='flex space-x-4 font-light'><b className='font-semibold'>Assignee</b> : {issue?.assignee?.name}</div>
+        </div>
+
+        <div className='mt-4'>
+          <h3 className='font-bold'>Dates</h3>
+          <div className='flex space-x-4 font-light'><b className='font-semibold'>Created Date</b> : {formatDate(issue?.createdAt)}</div>
+          <div className='flex space-x-4 font-light'><b className='font-semibold'>Assignee</b> : {formatDate(issue?.updatedAt)}</div>
+        </div>
       </div>
     </div>
   )

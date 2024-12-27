@@ -12,7 +12,9 @@ export async function GET(_: NextRequest, context: {params: {id: Number}}) {
         },
         include: {
             project: true,
-            comments: true
+            comments: true,
+            reporter: true,
+            assignee: true
         }
     })
 
