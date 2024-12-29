@@ -10,7 +10,9 @@ export async function GET(request: NextRequest) {
             reporterId: currentUser?.user?.email as string 
         },
         include: {
-            project: true
+            project: true,
+            reporter: true,
+            assignee: true
         }
     });
 

@@ -33,7 +33,17 @@ export const singleIssueSchema = z.object({
         name: z.string()
     }),
     targetStartDate: z.string().optional(),
-    targetEndDate: z.string().optional()
+    targetEndDate: z.string().optional(),
+    reporter: z.object({
+        id: z.number(),
+        name: z.string(),
+        email: z.string().email()
+    }).optional(),
+    assignee: z.object({
+        id: z.number(),
+        name: z.string(),
+        email: z.string().email()
+    }).optional(),
 })
 
 export const IssueSchema = singleIssueSchema.array();
