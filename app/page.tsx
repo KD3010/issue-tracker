@@ -55,7 +55,7 @@ export default function Home() {
           <Dialog>
             <div className='flex mt-4 flex-col md:flex-row gap-4'>
               <DialogTrigger><Button variant="default" onClick={() => setOpen(!open)}>Create a Project</Button></DialogTrigger>
-              <Button variant="outline" className='border-gray-600'>Create an Organization</Button>
+              {/* <Button variant="outline" className='border-gray-600'>Create an Organization</Button> */}
             </div>
 
             <DialogContent className='sm:max-w-[500px]'>
