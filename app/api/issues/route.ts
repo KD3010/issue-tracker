@@ -23,11 +23,12 @@ export async function GET(request: NextRequest) {
             OR: [
                 {
                     title: {
-                        contains: query.get('search') || ''
+                        contains: query.get('search') || '',
+                        mode: "insensitive"
                     }
                 },
                 {
-                    AND: [
+                    OR: [
                         {
                             id: {
                                 equals: query.get('search')?.split("-")[1] ? parseInt(query.get('search')?.split("-")[1] ?? '') : undefined

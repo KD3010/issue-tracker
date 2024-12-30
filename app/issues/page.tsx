@@ -13,6 +13,7 @@ import SearchInput from '@/components/SearchInput'
 import FilterPill from '@/components/FilterPill'
 import axios from 'axios'
 import { Button } from '@/components/ui/button'
+import Filters from '@/components/Filters'
 
 type TSingleIssue = z.infer<typeof singleIssueSchema>
 
@@ -39,16 +40,6 @@ const Page = () => {
       dispatch(resetIssue())
     }
   }, [])
-
-  const getAvailableOptions = async (id: string, callbackFn: Function) => {
-    if(id === "reportedBy" || id === "assignedTo") {
-      const res = await axios.get("/api/user/contributors");
-      const users = res.data.data;
-      callbackFn && callbackFn(users);
-    } else if(id === "status") {
-      callbackFn && callbackFn(["OPEN", "IN_PROGRESS", "CLOSED"])
-    }
-  }
 
   const handleFilterApply = () => {
     const payload = {
@@ -118,17 +109,7 @@ const filters = [
   return (
         <div className='flex-row space-y-6'>
         <div className='flex flex-wrap gap-6'>
-          <div className='w-full flex justify-between items-center'>
-            <div className='flex gap-2'>
-              {filters?.map((filter: any, index: number) => (
-                <div key={index}><FilterPill {...filter} getAvailableOptions={getAvailableOptions} /></div>
-              ))}
-              <Button className='bg-blue-500 hover:bg-blue-700' onClick={handleFilterApply}>Apply</Button>
-            </div>
-            <div>
-              <SearchInput handleSearch={handleSearch} placeHolder="Search by Id, Summary" />
-            </div>
-          </div>
+          <Filters filters={filters} handleSearch={handleSearch} handleFilterApply={handleFilterApply} />
           {issueLoading ? Loader : (
             <Table>
             <TableHeader>

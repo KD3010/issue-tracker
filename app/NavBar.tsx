@@ -42,7 +42,7 @@ const NavBar = () => {
               })} href={link.href}>{link.label}
             </Link>)}
             <Dialog open={open} onOpenChange={() => setOpen(!open)}>
-              <DialogTrigger asChild><Button onClick={() => setOpen(true)} variant="default">Create</Button></DialogTrigger>
+              <DialogTrigger asChild><Button onClick={() => setOpen(true)} variant="default" className='bg-blue-500 hover:bg-blue-700'>Create</Button></DialogTrigger>
               <DialogContent className='max-w-[50%] p-6 max-h-[400px] overflow-y-auto'>
                 <DialogHeader><DialogTitle>Create new issue</DialogTitle></DialogHeader>
                 <div>
@@ -53,7 +53,7 @@ const NavBar = () => {
           </ul>
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger className='bg-gray-950 rounded-[50%] h-9 w-9 flex items-center justify-center'><FaUserAlt color='white' /></DropdownMenuTrigger>
+          <DropdownMenuTrigger className='bg-blue-500 hover:bg-blue-700 transition-all rounded-[50%] h-9 w-9 flex items-center justify-center'><FaUserAlt color='white' /></DropdownMenuTrigger>
           <DropdownMenuContent className='px-2 py-2 w-[200px] cursor-pointer mr-7'>
             <DropdownMenuItem className='px-2 outline-none hover:bg-slate-100' onClick={() => signOut()}>Log Out</DropdownMenuItem>
           </DropdownMenuContent>
