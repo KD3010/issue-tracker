@@ -2,12 +2,48 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/prisma/db';
 import { createIssueSchema, IssueSchema } from '@/lib/validation';
 import { getServerSession } from 'next-auth';
+import type { Status } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
+    const query = request.nextUrl.searchParams;
+    const reportedBy = query.get("reportedBy")?.split(",") || [];
+    const assignedTo = query.get("assignedTo")?.split(",") || [];
+    const status = query.get("status")?.split(",") || [];
+
+    const reportedByQuery = reportedBy?.length > 0 ? { reporterId : { in: reportedBy } } : {};
+    const assignedToQuery = assignedTo?.length > 0 ? { assigneeId: { in: assignedTo } } : {};
+    const statusQuery = status?.length > 0 ? { status : { in: status as Status[] } } : {};
+
     const currentUser = await getServerSession();
     const allIssues = currentUser && await prisma.issue.findMany({
         where: {
-            reporterId: currentUser?.user?.email as string 
+            ...reportedByQuery,
+            ...assignedToQuery,
+            ...statusQuery,
+            OR: [
+                {
+                    title: {
+                        contains: query.get('search') || ''
+                    }
+                },
+                {
+                    AND: [
+                        {
+                            id: {
+                                equals: query.get('search')?.split("-")[1] ? parseInt(query.get('search')?.split("-")[1] ?? '') : undefined
+                            }
+                        },
+                        {
+                            project: {
+                                name: {
+                                    contains: query.get('search')?.split("-")[0] ?? '',
+                                    mode: 'insensitive'
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
         },
         include: {
             project: true,
