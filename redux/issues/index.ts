@@ -62,16 +62,37 @@ export const resetIssue = (callbackFn: Function = () => {}) => (dispatch: AppDis
     dispatch(fetchedSingleIssue(initialState.issue))
 }
 
-export const fetchAllIssues = (callbackFn: Function) => (dispatch: AppDispatch, getState: RootState) => {
+export const fetchAllIssues = (callbackFn: Function, filters?: any) => (dispatch: AppDispatch, getState: RootState) => {
     dispatch(fetchingIssues(true));
-    axios.get('/api/issues')
+    const payload = () => {
+        const data: any = {}
+        if(filters?.search) {
+            data["search"] = filters?.search;
+        }
+        if(filters?.reportedBy) {
+            data["reportedBy"] = filters?.reportedBy;
+        }
+        if(filters?.assignedTo) {
+            data["assignedTo"] = filters?.assignedTo
+        }
+        if(filters?.status) {
+            data["status"] = filters?.status
+        }
+
+        return data;
+    }
+    
+    console.log("API CALL /issues")
+
+    axios.get('/api/issues', { params: payload() })
       .then((response) => {
           dispatch(fetchedIssuesListSuccesfully(response.data.allIssues || []))
           callbackFn && callbackFn()
         }
-      ).catch(error => (
+      ).catch(error => {
+        console.log("Error", error)
         callbackFn(error.message)
-      )).finally(() => dispatch(fetchingIssues(false)));
+    }).finally(() => dispatch(fetchingIssues(false)));
 }
 
 export const fetchSingleIssue = (issueId: String, callbackFn: Function = () => {}) => (dispatch: AppDispatch) => {
