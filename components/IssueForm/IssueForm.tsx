@@ -230,7 +230,7 @@ const IssueForm = ({issue, handleModalClose}: {
           </div>
           <div className='border-l border-gray-300 pl-4 basis-1/2'>
             <div className='flex gap-2'>
-              <p><b className='font-bold'>Reporter</b> : {userData?.name}</p>
+              <p><b className='font-bold'>Reporter</b> : {issue?.reporter?.name}</p>
             </div>
             <label className='flex gap-2 items-center mt-2'>
               <p>Assignee: </p>
