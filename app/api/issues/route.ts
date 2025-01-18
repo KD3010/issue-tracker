@@ -6,12 +6,15 @@ import type { Status } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
     const query = request.nextUrl.searchParams;
+    console.log(query.get("project"))
     const reportedBy = query.get("reportedBy")?.split(",") || [];
     const assignedTo = query.get("assignedTo")?.split(",") || [];
+    const project = query.get("project")?.split(",") || [];
     const status = query.get("status")?.split(",") || [];
 
     const reportedByQuery = reportedBy?.length > 0 ? { reporterId : { in: reportedBy } } : {};
     const assignedToQuery = assignedTo?.length > 0 ? { assigneeId: { in: assignedTo } } : {};
+    const projectQuery = project?.length > 0 ? { project : { name: { in : project } } } : {};
     const statusQuery = status?.length > 0 ? { status : { in: status as Status[] } } : {};
 
     const currentUser = await getServerSession();
@@ -20,6 +23,7 @@ export async function GET(request: NextRequest) {
             ...reportedByQuery,
             ...assignedToQuery,
             ...statusQuery,
+            ...projectQuery,
             OR: [
                 {
                     title: {
