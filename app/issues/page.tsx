@@ -9,10 +9,6 @@ import Spinner from '@/components/ui/Spinner'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import Link from 'next/link'
 import clsx from 'clsx'
-import SearchInput from '@/components/SearchInput'
-import FilterPill from '@/components/FilterPill'
-import axios from 'axios'
-import { Button } from '@/components/ui/button'
 import Filters from '@/components/Filters'
 
 type TSingleIssue = z.infer<typeof singleIssueSchema>
@@ -25,6 +21,7 @@ const Page = () => {
   const { issueList, issueLoading } = useAppSelector(state => state.Issues);
   const [selectedReporters, setSelectedReporters] = useState<string[]>([]);
   const [selectedAssignee, setSelectedAssignee] = useState<string[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
   const dispatch = useAppDispatch<any>();
 
@@ -45,6 +42,7 @@ const Page = () => {
     const payload = {
       reportedBy: selectedReporters.toString(),
       assignedTo: selectedAssignee.toString(),
+      project: selectedProject.toString(),
       status: selectedStatus.toString()
     }
 
@@ -62,6 +60,7 @@ const Page = () => {
       const payload = {
         reportedBy: selectedReporters.toString(),
         assignedTo: selectedAssignee.toString(),
+        project: selectedProject.toString(),
         status: selectedStatus.toString()
       }
       if(!value?.length)
@@ -89,18 +88,28 @@ const filters = [
     label: "Reporter",
     selectedItems: selectedReporters,
     setSelectedItems: setSelectedReporters,
+    options: '/api/user/contributors'
   }, 
   {
     id: "assignedTo",
     label: "Assignee",
     selectedItems: selectedAssignee,
     setSelectedItems: setSelectedAssignee,
+    options: '/api/user/contributors'
   },
   {
     id: "status",
     label: "Status",
     selectedItems: selectedStatus,
     setSelectedItems: setSelectedStatus,
+    options: ["OPEN", "IN_PROGRESS", "CLOSED"]
+  },
+  {
+    id: "project",
+    label: "Project",
+    selectedItems: selectedProject,
+    setSelectedItems: setSelectedProject,
+    options: 'api/projects'
   }
 ]
 

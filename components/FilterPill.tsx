@@ -43,8 +43,12 @@ const FilterPill = ({id, label, selectedItems, setSelectedItems, getAvailableOpt
             {loading ? <div className='w-full flex justify-center'>
                 <LoaderCircle size={20} className='animate-spin' /></div> : options?.map((option: any, index: number) => (
                 <label key={index} className='flex items-center gap-2 px-2 py-1 hover:bg-gray-100 cursor-pointer'>
-                    <input checked={selectedItems.includes(id !== "status" ? option?.email : option)} type='checkbox' value={id === "status" ? option : option?.email } onChange={handleCheckChange} />
-                    <span>{id === "status" ? option.split("-").join(" ") : option?.name}</span>   
+                    <input 
+                        checked={selectedItems.includes(id === "status" ? option : id === "project" ? option?.name : option?.email)} 
+                        type='checkbox' 
+                        value={id === "status" ? option : id === "project" ? option?.name : option?.email } 
+                        onChange={handleCheckChange} />
+                    <span>{id === "status" ? option.split("-").join(" ") : id === "project" ? option?.name : option?.email}</span>   
                 </label>  
             ))}
             <Button className='text-blue-500 hover:text-blue-700 decoration-transparent py-1 -ml-2' variant="link" onClick={() => setSelectedItems([])}>Clear</Button>

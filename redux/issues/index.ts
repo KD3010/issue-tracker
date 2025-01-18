@@ -78,11 +78,12 @@ export const fetchAllIssues = (callbackFn: Function, filters?: any) => (dispatch
         if(filters?.status) {
             data["status"] = filters?.status
         }
+        if(filters?.project) {
+            data["project"] = filters?.project
+        }
 
         return data;
     }
-    
-    console.log("API CALL /issues")
 
     axios.get('/api/issues', { params: payload() })
       .then((response) => {
