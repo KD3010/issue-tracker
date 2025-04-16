@@ -1,15 +1,9 @@
-import NextAuth, { type DefaultSession, type TokenSet } from "next-auth";
+import NextAuth, { type TokenSet } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/prisma/db";
 const bcrypt = require("bcryptjs")
-
-interface Session {
-  user: {
-    id: string;
-  } & DefaultSession['user'];
-}
 
 const authOptions = {
     providers: [
