@@ -6,7 +6,6 @@ import type { Status } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
     const query = request.nextUrl.searchParams;
-    console.log(query.get("project"))
     const reportedBy = query.get("reportedBy")?.split(",") || [];
     const assignedTo = query.get("assignedTo")?.split(",") || [];
     const project = query.get("project")?.split(",") || [];

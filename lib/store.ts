@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
 import * as Issues from '@/redux/issues'
-import { Store } from 'lucide-react'
 
 export const store = configureStore({
   reducer: {
