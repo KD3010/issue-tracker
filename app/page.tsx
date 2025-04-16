@@ -17,7 +17,7 @@ export default function Home() {
   const [selectedContributors, setSelectedContributors] = useState([]);
   const [open, setOpen] = useState(false);
 
-  const api_url = "/api/user/contributors"
+  const api_url = "/api/user"
   
   const handleInputChange = (e: any) => {
     setProjectName(e.target.value);
