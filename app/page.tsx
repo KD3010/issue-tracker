@@ -44,9 +44,7 @@ export default function Home() {
 
   return (
     <div className='flex flex-col md:flex-row min-h-[85vh]'>
-      <div className="flex basis-1/2 items-center justify-center">
-        <img width={550} src={Kanban.src} alt="hero" />
-      </div>
+      
       <div className='basis-1/2 flex flex-col items-center justify-center'>
         <h1 className='text-3xl font-bold'>Effortlessly Track, Manage, and Resolve Issues with Issue Tracker</h1>
         <p className='text-gray-600'>Streamline your workflow, enhance collaboration, and deliver projects on time with our powerful issue tracking solution.</p>
