@@ -13,7 +13,7 @@ import { FaXmark } from "react-icons/fa6";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
-  const [projectName, setProjectName] = useState('asdasdad');
+  const [projectName, setProjectName] = useState('');
   const [selectedContributors, setSelectedContributors] = useState([]);
   const [open, setOpen] = useState(false);
 
