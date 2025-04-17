@@ -44,7 +44,7 @@ export default function Home() {
 
   return (
     <div className='flex flex-col md:flex-row min-h-[85vh]'>
-      <div className="flex basis-1/2 items-center justify-center">
+       <div className="flex basis-1/2 items-center justify-center">
         <img width={550} src={Kanban.src} alt="hero" />
       </div>
       <div className='basis-1/2 flex flex-col items-center justify-center'>
